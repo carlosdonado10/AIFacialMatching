@@ -13,6 +13,7 @@ dependencies = [
     "pydantic-settings",
     "azure-cosmos",
     "insightface",
+    "onnxruntime==1.16.3",
 ]
 
 [project.optional-dependencies]

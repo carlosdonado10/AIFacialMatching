@@ -74,6 +74,8 @@ services:
       - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
       - CELERY_BROKER_URL=redis://redis:6379/0
       - ENV=DOCKER
+    volumes:
+      - ./backend:/app
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
