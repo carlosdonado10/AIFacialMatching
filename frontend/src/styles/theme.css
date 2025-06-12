@@ -1,0 +1,26 @@
+:root {
+  --background: 0 0% 100%;
+  --foreground: 222.2 84% 4.9%;
+  --icon: 45 100% 60%; /* gold for dark mode */
+  --sidebar-bg: #090E2E;        /* dark blue-violet background */
+  --sidebar-text: #f1f5f9;      /* soft white text */
+  --sidebar-hover: #1E2250;   /* hover background */
+  --sidebar-active: #2C3170;  /* active background */
+  --card: 0 0% 100%;               /* white (light mode default) */
+  --card-foreground: 222.2 84% 4.9%; /* dark text */
+  /* ... all light variables here ... */
+}
+
+.dark {
+  --background: rgb(237, 237, 239);
+  --foreground: 0 0% 100%;
+  --icon: 45 100% 60%; /* gold for dark mode */
+  --sidebar-bg: rgb(43, 45, 48);        /* dark blue-violet background */
+  --sidebar-text: #f1f5f9;      /* soft white text */
+  --bg-card: #f1f5f9;      /* soft white text */
+  --sidebar-hover: #1E2250;   /* hover background */
+  --sidebar-active: #2C3170;  /* active background */
+  --card: #1e1f22;             /* #10131a */
+  --card-foreground: #ededef;  /* soft white */
+  /* ... all dark variables here ... */
+}
