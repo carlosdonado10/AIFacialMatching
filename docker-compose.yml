@@ -1,0 +1,117 @@
+services:
+
+  traefik:
+
+    image: traefik:v3.0
+    container_name: traefik
+    command:
+      - "--api.insecure=true"
+      - "--api.dashboard=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.websecure.http.tls=true"
+      - "--certificatesresolvers.myresolver.acme.tlschallenge=true"
+      - "--certificatesresolvers.myresolver.acme.email=cf.donado@hotmail.com"
+      - "--certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json"
+      - "--log.level=DEBUG"
+    ports:
+      - "80:80"       # for your web apps
+      - "8080:8080"
+      - "443:443"
+    volumes:
+      - "//var/run/docker.sock:/var/run/docker.sock:ro"
+      - './letsencrypt:/letsencrypt'
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.traefik.rule=PathPrefix(`/dashboard`)"
+      - "traefik.http.routers.traefik.entrypoints=web"
+      - "traefik.http.routers.traefik.service=api@internal"
+
+  auth:
+    build:
+      context: .  # Path to your FastAPI auth folder
+      dockerfile: auth/auth.dockerfile
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./auth:/app
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/frontend.dockerfile
+    volumes:
+      - ./frontend:/app       # Enables hot reload!
+      - /app/node_modules     # Avoids overwriting node_modules
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.middlewares.forward-auth.forwardauth.address=http://auth:8000/check_auth"
+      - "traefik.http.middlewares.forward-auth.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.forward-auth.forwardauth.authResponseHeaders=X-User"
+      - "traefik.http.routers.frontend.middlewares=forward-auth"
+
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: .
+      dockerfile: ./backend/backend.dockerfile
+    env_file:
+      - .env
+    environment:
+      - AUTH0_DOMAIN=your-auth0-domain
+      - AUTH0_API_AUDIENCE=https://your-api-id
+      - AZURE_STORAGE_ACCOUNT=your-storage-account
+      - AZURE_STORAGE_KEY=your-storage-key
+      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - ENV=DOCKER
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
+      - "traefik.http.routers.backend.entrypoints=web"
+      - "traefik.http.services.backend.loadbalancer.server.port=8000"
+      - "traefik.http.routers.backend.service=backend"
+      - "traefik.http.routers.backend.middlewares=prefix-header"
+      - "traefik.http.middlewares.strip-api.stripprefix.prefixes=/api"
+      - "traefik.http.routers.backend.middlewares=strip-api"
+    depends_on:
+      - db
+      - redis
+
+#  worker:
+#    build: ./backend
+#    command: celery -A app.worker worker --loglevel=info
+#    environment:
+#      - CELERY_BROKER_URL=redis://redis:6379/0
+#      - DATABASE_URL=postgresql://postgres:password@db:5432/postgres
+#      - AZURE_STORAGE_ACCOUNT=your-storage-account
+#      - AZURE_STORAGE_KEY=your-storage-key
+#    depends_on:
+#      - backend
+#      - redis
+
+  db:
+    image: postgres:14
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: postgres
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  redis:
+    image: redis:7
+    restart: always
+
+volumes:
+  pgdata:

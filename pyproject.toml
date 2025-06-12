@@ -1,0 +1,22 @@
+[project]
+name = "armero"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = "==3.10.*"
+
+dependencies = [
+    "fastapi[all]    ",
+    "python-jose",
+    "uvicorn[standard]",
+    "authlib",
+    "pydantic-settings",
+    "azure-cosmos",
+    "insightface",
+]
+
+[project.optional-dependencies]
+worker = ["celery", "azure-storage-blob", "azure-storage-queue"]
+
+[tool.uv.workspace]
+members = ["python-cosmos"]
