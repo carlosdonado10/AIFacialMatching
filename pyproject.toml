@@ -12,8 +12,10 @@ dependencies = [
     "authlib",
     "pydantic-settings",
     "azure-cosmos",
-    "insightface",
-    "onnxruntime==1.16.3",
+    #    "insightface",
+    #    "onnxruntime==1.16.3",
+    "pydantic>=2.11.5",
+    "sqlmodel",
 ]
 
 [project.optional-dependencies]

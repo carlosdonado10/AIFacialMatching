@@ -1,7 +1,7 @@
 # backend/api.py
 from typing import List
 
-from fastapi import FastAPI, Depends, HTTPException, APIRouter
+from fastapi import FastAPI
 
 from user_management import get_management_token, fetch_all_users, User
 

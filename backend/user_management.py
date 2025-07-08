@@ -83,3 +83,25 @@ def fetch_all_users(token: str) -> List[User]:
         page += 1
 
     return [User(**user) for user in users]
+
+def fetch_user_roles(token: str, user_id: str) -> List[str]:
+    """
+    Fetches the list of role names assigned to the given user in Auth0.
+
+    Args:
+        token (str): Valid Auth0 Management API token with `read:roles` scope.
+        user_id (str): Auth0 user ID (e.g., 'auth0|abc123').
+
+    Returns:
+        List[str]: List of role names.
+    """
+    headers = {
+        "Authorization": f"Bearer {token}"
+    }
+
+    url = f"{settings.users_url}/{user_id}/roles"
+    response = requests.get(url, headers=headers)
+    response.raise_for_status()
+
+    roles_data = response.json()
+    return [role["name"] for role in roles_data]

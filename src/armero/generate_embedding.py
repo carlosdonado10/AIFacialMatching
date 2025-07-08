@@ -15,7 +15,7 @@ def generate_embedding() -> Optional[List[float]]:
         otherwise None.
     """
     model = insightface.app.FaceAnalysis(name="buffalo_l")
-    model.prepare(ctx_id=0)  # Use -1 for CPU if no GPU is available
+    model.prepare(ctx_id=-1)  # Use -1 for CPU if no GPU is available
 
     img = cv2.imread("im1.jpg")
     faces = model.get(img)
@@ -26,3 +26,6 @@ def generate_embedding() -> Optional[List[float]]:
 
     return embedding
 
+if __name__ == '__main__':
+
+    generate_embedding()
