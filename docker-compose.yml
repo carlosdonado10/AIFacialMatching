@@ -76,6 +76,8 @@ services:
       - ENV=DOCKER
     volumes:
       - ./backend:/app
+    ports:
+      - 5678:5678
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.backend.rule=PathPrefix(`/api`)"
